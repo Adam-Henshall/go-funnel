@@ -32,5 +32,5 @@ Visits from `localhost` send real `PageView`s to the pixel. Opening `/book/` sen
 
 ## Still depends on outside services
 
-- The VSL streams from GoHighLevel's video CDN (`content.apisystem.tech`). If that account is closed, the video stops. Move it to a host you control (Vimeo, Mux, Bunny Stream or YouTube) and update `data-src` in `index.html`.
+- The VSL streams from Mux (environment "Omada VSL", asset "Omada VSL (Borderless Edit)", playback ID `B6wCWdU52bf9PobJmOP1Jv55nSXGcK5u5FBnGuwg9jM`), capped at 1080p to keep delivery costs down. The poster is Mux's frame at 10s. To swap the video, upload a new asset with a public playback policy and replace the ID in `index.html` (both `data-src` and `poster`).
 - The calendar header says "15-minute slot", but the Google appointment schedule is set to 30-minute appointments. One of them needs updating.
