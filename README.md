@@ -22,8 +22,8 @@ Visits from `localhost` send real `PageView`s to the pixel. Opening `/book/` sen
 ## Go-live checklist
 
 1. **GitHub Pages.** Hosted for now from the public repo `Adam-Henshall/go-funnel` (deploys from `main`, root folder) at https://adam-henshall.github.io/go-funnel/ for testing. To be transferred to the `omada-ai` org later. At go-live, set the custom domain to `go.omada.ai` under Settings → Pages (this adds a `CNAME` file), then tick *Enforce HTTPS* once the certificate is issued.
-2. **DNS (GoDaddy).** `go.omada.ai` currently points to GoHighLevel (`sites.ludicrous.cloud`). Change the `go` CNAME record to `<repo-owner>.github.io` (`adam-henshall.github.io` now, `omada-ai.github.io` after the transfer). The old GoHighLevel page goes offline as soon as this propagates, so do it when the HubSpot step below is ready too.
-3. **HubSpot form redirect.** In the form's settings, change the qualified redirect from `https://omada.ai/bookvsl` to `https://go.omada.ai/book/`. If other pages embed this same form, clone it for the funnel and swap the new form ID into `index.html`.
+2. **DNS (GoDaddy).** `go.omada.ai` currently points to GoHighLevel (`sites.ludicrous.cloud`). Change the `go` CNAME record to `<repo-owner>.github.io` (`adam-henshall.github.io` now, `omada-ai.github.io` after the transfer). The old GoHighLevel page goes offline as soon as this propagates. Do this **before** the HubSpot step below: until the redirect changes, the new form still sends qualified people to the old `omada.ai/bookvsl`, which keeps working.
+3. **HubSpot form redirect** (only once `https://go.omada.ai/book/` loads). In the form's settings, change the qualified redirect from `https://omada.ai/bookvsl` to `https://go.omada.ai/book/`. If other pages embed this same form, clone it for the funnel and swap the new form ID into `index.html`.
 4. **Meta Events Manager.**
    - Settings → Traffic permissions: make sure `go.omada.ai` (or `omada.ai`) is on the allow list.
    - Remove the old `Lead` trigger made with the event setup tool ("URL equals https://omada.ai/bookvsl") so `Lead` only comes from this funnel.
