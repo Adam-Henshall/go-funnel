@@ -30,12 +30,14 @@
     var soundButton = document.querySelector('[data-enable-sound]');
     var src = video.getAttribute('data-src');
 
-    if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = src;
-    } else if (window.Hls && window.Hls.isSupported()) {
+    // Prefer hls.js: recent Chrome reports native HLS support but fails on Mux's separate audio track.
+    // Native playback is the fallback for browsers without MSE (older iPhones).
+    if (window.Hls && window.Hls.isSupported()) {
       var hls = new window.Hls({ capLevelToPlayerSize: true });
       hls.loadSource(src);
       hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = src;
     }
 
     // Starts muted (browsers only allow muted autoplay); the button restarts it with sound.
