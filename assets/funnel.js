@@ -82,11 +82,54 @@
     }
   }
 
+  // TEMPORARY until the form's qualified redirect is changed in HubSpot (see README).
+  // HubSpot's embed tells this page where to go after a submission over a MessageChannel, then this page
+  // navigates. Rewrite the old booking page to ours before HubSpot's handler sees it. This leans on HubSpot
+  // internals: if they change, nothing matches and qualified people land on omada.ai/bookvsl as before,
+  // which `hubspot_redirect_unhandled` in GA4 flags.
+  var HUBSPOT_NAVIGATE = 'HS_CTA_NAVIGATE_PAGE';
+  var OLD_BOOKING = /^https:\/\/(www\.)?omada\.ai\/bookvsl\/?(\?|#|$)/;
+  var NEW_BOOKING = 'https://go.omada.ai/book/';
+  var redirectSeen = false;
+
+  function rewriteHubSpotRedirect() {
+    var desc = window.MessagePort && Object.getOwnPropertyDescriptor(MessagePort.prototype, 'onmessage');
+    if (!desc || !desc.get || !desc.set) return;
+    Object.defineProperty(MessagePort.prototype, 'onmessage', {
+      configurable: true,
+      enumerable: desc.enumerable,
+      get: desc.get,
+      set: function (handler) {
+        if (typeof handler !== 'function') return desc.set.call(this, handler);
+        desc.set.call(this, function (e) {
+          var data = e && e.data;
+          if (!data || data.type !== HUBSPOT_NAVIGATE || !data.payload || typeof data.payload.url !== 'string') {
+            return handler.call(this, e);
+          }
+          redirectSeen = true;
+          var url = data.payload.url;
+          var rewritten = OLD_BOOKING.test(url);
+          if (rewritten) url = NEW_BOOKING + new URL(url).search; // keeps HubSpot's ?submissionGuid=
+          var dest = new URL(url);
+          track(null, 'hubspot_redirect', { destination: dest.host + dest.pathname, rewritten: rewritten });
+          return handler.call(this, { data: { type: data.type, payload: Object.assign({}, data.payload, { url: url }) } });
+        });
+      }
+    });
+  }
+
   if (page === 'landing') {
+    // Must run before HubSpot's deferred embed script opens its channel.
+    rewriteHubSpotRedirect();
+    var submitted = false;
+    window.addEventListener('pagehide', function () {
+      if (submitted && !redirectSeen) track(null, 'hubspot_redirect_unhandled', {});
+    });
     setupVideo();
     setupReadMore();
     // Fired by HubSpot's embedded form (new editor) before it redirects to the page set in HubSpot.
     window.addEventListener('hs-form-event:on-submission:success', function () {
+      submitted = true;
       if (once('omada_application')) track('SubmitApplication', 'application_submitted', { content_name: 'VSL application' });
     });
   }
