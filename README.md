@@ -9,7 +9,7 @@ A two-page static funnel served from GitHub Pages at `go.omada.ai`, built so Met
 
 `Lead` is the conversion to optimise the ad set for. `SubmitApplication` fires for every application, qualified or not, and is there as a higher-volume fallback signal if `Lead` volume is too low for Meta to exit learning.
 
-Pixel: Omada Pixel `1616636385675883`. Analytics: GA4 `G-FYKCBREVF8`, the same property as omada.ai (filter by hostname `go.omada.ai`). HubSpot portal `49721108`, form `2097a9d1-3d8d-4486-ba3b-6f992c213fc7`.
+Pixel: Omada Pixel `1616636385675883`. Analytics: GA4 `G-G75KW6SVHD` (funnel-only property). HubSpot portal `49721108`, form `2097a9d1-3d8d-4486-ba3b-6f992c213fc7`.
 
 ## Preview locally
 
