@@ -161,6 +161,15 @@ a { color: inherit; }
   object-fit: cover;
   background: #000;
 }
+.video-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.video-poster[hidden] { display: none; }
 .sound-button {
   position: absolute;
   inset: 0;

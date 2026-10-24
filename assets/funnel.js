@@ -35,25 +35,45 @@
     var video = document.querySelector('[data-vsl]');
     if (!video) return;
     var soundButton = document.querySelector('[data-enable-sound]');
+    var poster = document.querySelector('[data-vsl-poster]');
     var src = video.getAttribute('data-src');
+    var started = false;
 
-    // Prefer hls.js: recent Chrome reports native HLS support but fails on Mux's separate audio track.
-    // Native playback is the fallback for browsers without MSE (older iPhones).
-    if (window.Hls && window.Hls.isSupported()) {
-      var hls = new window.Hls({ capLevelToPlayerSize: true });
-      hls.loadSource(src);
-      hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = src;
+    function start() {
+      if (started) return;
+      started = true;
+      // Prefer hls.js: recent Chrome reports native HLS support but fails on Mux's separate audio track.
+      // Native playback is the fallback for browsers without MSE (older iPhones).
+      if (window.Hls && window.Hls.isSupported()) {
+        var hls = new window.Hls({ capLevelToPlayerSize: true });
+        hls.loadSource(src);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = src;
+      }
+
+      // Starts muted (browsers only allow muted autoplay); the button restarts it with sound.
+      video.muted = true;
+      var autoplay = video.play();
+      if (autoplay && autoplay.catch) autoplay.catch(function () {});
     }
 
-    // Starts muted (browsers only allow muted autoplay); the button restarts it with sound.
-    video.muted = true;
-    var autoplay = video.play();
-    if (autoplay && autoplay.catch) autoplay.catch(function () {});
+    // The poster stays on top until the video has frames to show.
+    video.addEventListener('playing', function () {
+      if (poster) poster.hidden = true;
+    });
+
+    // Video segments would compete with the poster for bandwidth on slow phones, so stream once it has shown.
+    if (!poster || poster.complete) {
+      start();
+    } else {
+      poster.addEventListener('load', start);
+      poster.addEventListener('error', start);
+    }
 
     if (soundButton) {
       soundButton.addEventListener('click', function () {
+        start();
         video.muted = false;
         video.currentTime = 0;
         video.controls = true;

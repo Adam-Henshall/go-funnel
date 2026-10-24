@@ -8,8 +8,13 @@
   <link rel="icon" href="https://omada.ai/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/funnel.css?v=3">
+  <link rel="preconnect" href="https://image.mux.com">
+  <link rel="preconnect" href="https://stream.mux.com">
+  <!-- Fonts load without blocking first paint; text shows in the fallback font until they arrive -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="assets/funnel.css?v=4">
 
   <!-- Meta Pixel -->
   <script>
@@ -38,7 +43,7 @@
 
   <header class="site-header">
     <div class="wrap">
-      <img src="assets/logo-light.png" alt="Omada" width="600" height="171">
+      <img src="assets/logo-header.png" alt="Omada" width="182" height="52">
       <span class="step-label">Step 1 of 3</span>
     </div>
   </header>
@@ -51,7 +56,15 @@
       <div class="video-card">
         <video data-vsl
                data-src="https://stream.mux.com/B6wCWdU52bf9PobJmOP1Jv55nSXGcK5u5FBnGuwg9jM.m3u8?max_resolution=1080p"
-               poster="https://image.mux.com/B6wCWdU52bf9PobJmOP1Jv55nSXGcK5u5FBnGuwg9jM/thumbnail.jpg?width=1600&time=10" playsinline muted preload="metadata"></video>
+               playsinline muted preload="none"></video>
+        <!-- The poster is an <img> rather than poster="" so the browser finds it early and picks a size for the screen -->
+        <img class="video-poster" data-vsl-poster alt="" fetchpriority="high" width="1280" height="720"
+             src="https://image.mux.com/B6wCWdU52bf9PobJmOP1Jv55nSXGcK5u5FBnGuwg9jM/thumbnail.webp?width=960&time=10"
+             srcset="https://image.mux.com/B6wCWdU52bf9PobJmOP1Jv55nSXGcK5u5FBnGuwg9jM/thumbnail.webp?width=640&time=10 640w,
+                     https://image.mux.com/B6wCWdU52bf9PobJmOP1Jv55nSXGcK5u5FBnGuwg9jM/thumbnail.webp?width=960&time=10 960w,
+                     https://image.mux.com/B6wCWdU52bf9PobJmOP1Jv55nSXGcK5u5FBnGuwg9jM/thumbnail.webp?width=1280&time=10 1280w,
+                     https://image.mux.com/B6wCWdU52bf9PobJmOP1Jv55nSXGcK5u5FBnGuwg9jM/thumbnail.webp?width=1760&time=10 1760w"
+             sizes="(max-width: 920px) calc(100vw - 40px), 880px">
         <button class="sound-button" type="button" data-enable-sound>
           <span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -113,9 +126,10 @@
     </div>
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+  <!-- Deferred scripts run in this order once the page is parsed; funnel.js must stay before the HubSpot form embed -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js" defer></script>
+  <script src="assets/funnel.js?v=5" defer></script>
   <script src="https://js.hsforms.net/forms/embed/49721108.js" defer></script>
   <script src="https://js.hs-scripts.com/49721108.js" async defer id="hs-script-loader"></script>
-  <script src="assets/funnel.js?v=4"></script>
 </body>
 </html>
