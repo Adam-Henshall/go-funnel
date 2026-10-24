@@ -2,14 +2,14 @@
 
 A two-page static funnel served from GitHub Pages at `go.omada.ai`, built so Meta can see every step on one domain.
 
-| Page | Path | What's on it | Meta events |
-|---|---|---|---|
-| Landing | `/` | VSL video, HubSpot application form, testimonials | `PageView`, `ViewContent` (watched 50% with sound), `SubmitApplication` (form sent) |
-| Booking | `/book/` | Google Calendar booking widget (qualified applicants only) | `PageView`, **`Lead`** (once per session, value $100) |
+| Page | Path | What's on it | Meta events | GA4 events |
+|---|---|---|---|---|
+| Landing | `/` | VSL video, HubSpot application form, testimonials | `PageView`, `ViewContent` (watched 50% with sound), `SubmitApplication` (form sent) | `page_view`, `vsl_sound_on`, `vsl_50_percent`, `application_submitted` |
+| Booking | `/book/` | Google Calendar booking widget (qualified applicants only) | `PageView`, **`Lead`** (once per session, value $100) | `page_view`, `generate_lead` |
 
 `Lead` is the conversion to optimise the ad set for. `SubmitApplication` fires for every application, qualified or not, and is there as a higher-volume fallback signal if `Lead` volume is too low for Meta to exit learning.
 
-Pixel: Omada Pixel `1616636385675883`. HubSpot portal `49721108`, form `2097a9d1-3d8d-4486-ba3b-6f992c213fc7`.
+Pixel: Omada Pixel `1616636385675883`. Analytics: GA4 `G-FYKCBREVF8`, the same property as omada.ai (filter by hostname `go.omada.ai`). HubSpot portal `49721108`, form `2097a9d1-3d8d-4486-ba3b-6f992c213fc7`.
 
 ## Preview locally
 

@@ -1,8 +1,10 @@
-// Meta tracking for the go.omada.ai funnel.
-// The base pixel snippet (PageView) is inline in each page's <head>; this file adds the funnel events:
-//   ViewContent       landing page, viewer has watched half the VSL with sound on
-//   SubmitApplication landing page, HubSpot form submitted (qualified or not)
-//   Lead              /book/ page load, i.e. a qualified applicant. This is the event to optimise for.
+// Meta + Google Analytics tracking for the go.omada.ai funnel.
+// The base snippets (Meta PageView, GA4 page_view) are inline in each page's <head>; this file adds the funnel events:
+//   Meta              GA4                    When
+//   -                 vsl_sound_on           landing page, viewer clicks to watch with sound
+//   ViewContent       vsl_50_percent         landing page, viewer has watched half the VSL with sound on
+//   SubmitApplication application_submitted  landing page, HubSpot form submitted (qualified or not)
+//   Lead              generate_lead          /book/ page load, i.e. a qualified applicant. This is the event to optimise for.
 (function () {
   var page = document.body.getAttribute('data-page');
 
@@ -10,9 +12,14 @@
     return name + '.' + Date.now() + '.' + Math.random().toString(36).slice(2, 10);
   }
 
-  function track(name, params) {
-    if (typeof window.fbq !== 'function') return;
-    window.fbq('track', name, params || {}, { eventID: eventId(name) });
+  // Sends one funnel step to Meta (standard event name) and GA4 (event name); either can be null.
+  function track(metaName, gaName, params) {
+    if (metaName && typeof window.fbq === 'function') {
+      window.fbq('track', metaName, params || {}, { eventID: eventId(metaName) });
+    }
+    if (gaName && typeof window.gtag === 'function') {
+      window.gtag('event', gaName, params || {});
+    }
   }
 
   // True the first time a key is seen this browser session, so reloads don't double count.
@@ -52,13 +59,14 @@
         video.controls = true;
         video.play();
         soundButton.hidden = true;
+        if (once('omada_vsl_sound')) track(null, 'vsl_sound_on', { content_name: 'VSL' });
       });
     }
 
     video.addEventListener('timeupdate', function () {
       if (video.muted || !video.duration) return;
       if (video.currentTime / video.duration >= 0.5 && once('omada_vsl_50')) {
-        track('ViewContent', { content_name: 'VSL', content_category: 'vsl_50_percent' });
+        track('ViewContent', 'vsl_50_percent', { content_name: 'VSL', content_category: 'vsl_50_percent' });
       }
     });
   }
@@ -79,11 +87,11 @@
     setupReadMore();
     // Fired by HubSpot's embedded form (new editor) before it redirects to the page set in HubSpot.
     window.addEventListener('hs-form-event:on-submission:success', function () {
-      if (once('omada_application')) track('SubmitApplication', { content_name: 'VSL application' });
+      if (once('omada_application')) track('SubmitApplication', 'application_submitted', { content_name: 'VSL application' });
     });
   }
 
   if (page === 'book' && once('omada_lead')) {
-    track('Lead', { content_name: 'VSL booking page', value: 100, currency: 'USD' });
+    track('Lead', 'generate_lead', { content_name: 'VSL booking page', value: 100, currency: 'USD' });
   }
 })();
