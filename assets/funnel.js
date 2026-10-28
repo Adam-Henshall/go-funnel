@@ -5,6 +5,7 @@
 //   ViewContent       vsl_50_percent         landing page, viewer has watched half the VSL with sound on
 //   SubmitApplication application_submitted  landing page, HubSpot form submitted (qualified or not)
 //   Lead              generate_lead          /book/ page load, i.e. a qualified applicant. This is the event to optimise for.
+//   Schedule          book_meeting           /book/, HubSpot calendar confirms a booking (then we move to /thanks/)
 (function () {
   var page = document.body.getAttribute('data-page');
 
@@ -154,7 +155,18 @@
     });
   }
 
-  if (page === 'book' && once('omada_lead')) {
-    track('Lead', 'generate_lead', { content_name: 'VSL booking page', value: 100, currency: 'USD' });
+  // The HubSpot Meetings iframe posts { meetingBookSucceeded: true } to this page once a slot is booked.
+  // The short pause lets HubSpot's confirmation show and the tracking requests leave before we move on.
+  function setupBooking() {
+    window.addEventListener('message', function (e) {
+      if (e.origin !== 'https://meetings.hubspot.com' || !e.data || e.data.meetingBookSucceeded !== true) return;
+      if (once('omada_booked')) track('Schedule', 'book_meeting', { content_name: 'VSL booking' });
+      setTimeout(function () { window.location.href = '../thanks/'; }, 1500);
+    });
+  }
+
+  if (page === 'book') {
+    setupBooking();
+    if (once('omada_lead')) track('Lead', 'generate_lead', { content_name: 'VSL booking page', value: 100, currency: 'USD' });
   }
 })();

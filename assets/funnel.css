@@ -83,6 +83,9 @@ a { color: inherit; }
 }
 .hero .wrap { position: relative; z-index: 1; }
 
+/* Short pages (thank-you) end above the fold; keep the space under the footer dark, not paper */
+body[data-page="thanks"] { background: var(--ink); }
+
 .hero h1 {
   font-family: var(--serif);
   font-weight: 400;
