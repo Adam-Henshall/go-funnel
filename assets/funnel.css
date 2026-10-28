@@ -83,8 +83,54 @@ a { color: inherit; }
 }
 .hero .wrap { position: relative; z-index: 1; }
 
-/* Short pages (thank-you) end above the fold; keep the space under the footer dark, not paper */
-body[data-page="thanks"] { background: var(--ink); }
+/* Short pages (thank-you, received) end above the fold; keep the space under the footer dark, not paper */
+body[data-page="thanks"],
+body[data-page="received"] { background: var(--ink); }
+
+/* Call-time choice on /received/ */
+.callback-card {
+  max-width: 640px;
+  margin: 8px 0 32px;
+  padding: 24px;
+  background: var(--white);
+  color: var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+.callback-card h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 22px;
+  margin: 0 0 4px;
+}
+.callback-zone { margin: 0 0 18px; color: var(--slate); font-size: 14px; }
+.callback-zone span:not(:empty)::before { content: " · "; }
+.callback-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.callback-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.callback-choice strong { font-size: 18px; font-weight: 700; }
+.callback-choice span { font-size: 13px; color: var(--slate); }
+.callback-choice:hover:not(:disabled) { border-color: var(--ink); }
+.callback-choice:disabled { cursor: default; opacity: 0.45; }
+.callback-choice.selected { opacity: 1; background: var(--lime); border-color: var(--lime); }
+.callback-choice.selected span { color: var(--ink); }
+.callback-status { margin: 16px 0 0; min-height: 1.6em; font-weight: 600; }
 
 .hero h1 {
   font-family: var(--serif);
@@ -329,4 +375,7 @@ body[data-page="thanks"] { background: var(--ink); }
   .section { padding: 52px 0; }
   .calendar-card iframe { height: 760px; }
   .steps li + li::before { display: none; }
+  .callback-card { padding: 20px 16px; }
+  .callback-choices { grid-template-columns: 1fr; }
+  .callback-choice { flex-direction: row; justify-content: space-between; padding: 16px 18px; }
 }

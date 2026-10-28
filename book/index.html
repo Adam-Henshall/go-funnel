@@ -12,7 +12,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="../assets/funnel.css?v=5">
+  <link rel="stylesheet" href="../assets/funnel.css?v=6">
 
   <!-- Meta Pixel -->
   <script>
@@ -53,7 +53,7 @@
         <li class="current"><span class="dot">2</span>Book your call</li>
         <li><span class="dot">3</span>Confirmed</li>
       </ol>
-      <h1>You're in.</h1>
+      <h1 data-greeting>You're in.</h1>
       <p class="lede">Your business is the kind Omada works best for — established, owner-run. Most applicants don't get this page. Pick a time below and lock it in while you're here.</p>
 
       <div class="calendar-card">
@@ -84,8 +84,9 @@
     </div>
   </footer>
 
+  <!-- Deferred scripts run in order: funnel.js first, so it can pre-fill the calendar before HubSpot's embed reads data-src -->
+  <script src="../assets/funnel.js?v=9" defer></script>
   <script src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js" defer></script>
   <script src="https://js.hs-scripts.com/49721108.js" async defer id="hs-script-loader"></script>
-  <script src="../assets/funnel.js?v=6" defer></script>
 </body>
 </html>
