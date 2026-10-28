@@ -8,6 +8,8 @@
 //   Schedule          book_meeting           /book/, HubSpot calendar confirms a booking (then we move to /thanks/)
 //   -                 application_unqualified /received/ page load (HubSpot didn't qualify them)
 //   -                 call_time_selected     /received/, they picked Morning / Afternoon / Evening (emailed via Formspree)
+// Plus GA-only engagement signals on the landing page (setupEngagement, vsl_progress) and experiment_impression.
+// Every event carries landing_variant (a / b) for the landing_v1 A/B test.
 (function () {
   var page = document.body.getAttribute('data-page');
 
@@ -16,12 +18,14 @@
   }
 
   // Sends one funnel step to Meta (standard event name) and GA4 (event name); either can be null.
+  // Every event carries the A/B variant (set in <head>), so results can be split by it in GA and Meta.
   function track(metaName, gaName, params) {
+    params = Object.assign({ landing_variant: window.omadaVariant || 'unknown' }, params);
     if (metaName && typeof window.fbq === 'function') {
-      window.fbq('track', metaName, params || {}, { eventID: eventId(metaName) });
+      window.fbq('track', metaName, params, { eventID: eventId(metaName) });
     }
     if (gaName && typeof window.gtag === 'function') {
-      window.gtag('event', gaName, params || {});
+      window.gtag('event', gaName, params);
     }
   }
 
@@ -86,11 +90,60 @@
       });
     }
 
+    var reached = {};
     video.addEventListener('timeupdate', function () {
       if (video.muted || !video.duration) return;
-      if (video.currentTime / video.duration >= 0.5 && once('omada_vsl_50')) {
+      var share = video.currentTime / video.duration;
+      if (share >= 0.5 && once('omada_vsl_50')) {
         track('ViewContent', 'vsl_50_percent', { content_name: 'VSL', content_category: 'vsl_50_percent' });
       }
+      // GA-only watch depth with sound, for comparing variants (25 / 50 / 75 / 100%)
+      [25, 50, 75, 100].forEach(function (p) {
+        if (!reached[p] && share >= (p === 100 ? 0.98 : p / 100)) {
+          reached[p] = true;
+          track(null, 'vsl_progress', { percent: p });
+        }
+      });
+    });
+  }
+
+  // GA-only engagement signals on the landing page, sent once per page view, for comparing A/B variants:
+  //   time_on_page {seconds}  15 / 30 / 60 / 120 seconds with the page visible
+  //   scroll_depth {percent}  25 / 50 / 75 / 100% of the page scrolled past
+  //   form_view               the application form is on screen
+  //   form_step {step}        moved on to step 2 / 3 of the HubSpot form
+  function setupEngagement() {
+    var seconds = 0, timeMarks = [15, 30, 60, 120];
+    var timer = setInterval(function () {
+      if (document.visibilityState !== 'visible') return;
+      seconds += 1;
+      if (seconds === timeMarks[0]) track(null, 'time_on_page', { seconds: timeMarks.shift() });
+      if (!timeMarks.length) clearInterval(timer);
+    }, 1000);
+
+    var scrollMarks = [25, 50, 75, 100];
+    var onScroll = function () {
+      var seen = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100;
+      while (scrollMarks.length && seen >= scrollMarks[0] - 1) track(null, 'scroll_depth', { percent: scrollMarks.shift() });
+      if (!scrollMarks.length) window.removeEventListener('scroll', onScroll);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    var form = document.querySelector('.form-card');
+    if (form && 'IntersectionObserver' in window) {
+      var seenForm = new IntersectionObserver(function (entries) {
+        if (entries.some(function (e) { return e.isIntersecting; })) {
+          track(null, 'form_view', {});
+          seenForm.disconnect();
+        }
+      }, { threshold: 0.3 });
+      seenForm.observe(form);
+    }
+
+    var step = 1;
+    window.addEventListener('hs-form-event:on-interaction:navigate:next', function () {
+      step += 1;
+      track(null, 'form_step', { step: step });
     });
   }
 
@@ -185,6 +238,8 @@
     });
     setupVideo();
     setupReadMore();
+    setupEngagement();
+    if (once('omada_ab_impression')) track(null, 'experiment_impression', { experiment: 'landing_v1' });
     // Fired by HubSpot's embedded form (new editor) before it redirects to the page set in HubSpot.
     window.addEventListener('hs-form-event:on-submission:success', function () {
       submitted = true;

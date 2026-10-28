@@ -83,6 +83,11 @@ a { color: inherit; }
 }
 .hero .wrap { position: relative; z-index: 1; }
 
+/* A/B test: wrap variant copy in data-variant-only="a" / "b"; <html data-variant> (set in <head>) picks which shows.
+   With no variant set (no JS), A shows. */
+html:not([data-variant="b"]) [data-variant-only="b"],
+html[data-variant="b"] [data-variant-only="a"] { display: none !important; }
+
 /* Short pages (thank-you, received) end above the fold; keep the space under the footer dark, not paper */
 body[data-page="thanks"],
 body[data-page="received"] { background: var(--ink); }
